@@ -1,3 +1,4 @@
+#![allow(warnings)]
 use crate::lex::{Token, TokKind, Span};
 use TokKind::*;
 use crate::ast::*;
@@ -17,17 +18,21 @@ fn indent() -> String {
 
 // Helper: print enter/exit trace for parse functions
 fn trace_enter(name: &str) {
-    INDENT.with(|lvl| {
-        println!("{}→ Enter {}", indent(), name);
-        lvl.set(lvl.get() + 1);
-    });
+    if cfg!(debug_assertions) {
+        INDENT.with(|lvl| {
+            println!("{}→ Enter {}", indent(), name);
+            lvl.set(lvl.get() + 1);
+        });
+    }
 }
 
 fn trace_exit(name: &str) {
-    INDENT.with(|lvl| {
-        lvl.set(lvl.get().saturating_sub(1));
-        println!("{}← Exit {}", indent(), name);
-    });
+    if cfg!(debug_assertions) {
+        INDENT.with(|lvl| {
+            lvl.set(lvl.get().saturating_sub(1));
+            println!("{}← Exit {}", indent(), name);
+        });
+    }
 }
 
 
@@ -51,7 +56,14 @@ impl <'a> Parser<'a> {
     //Small helpers
     fn peek(&self) -> Token { self.toks.get(self.pos).unwrap().clone() }
     fn is_at_end(&self) -> bool { matches!(self.peek().kind, EOF) }
-    fn advance(&mut self) {if !self.is_at_end() {println!("{}[advance] {:?}", indent(), self.peek().kind); self.pos+= 1; }}
+    fn advance(&mut self) {
+        if !self.is_at_end() {
+            if cfg!(debug_assertions) {
+                println!("{}[advance] {:?}", indent(), self.peek().kind); 
+            }
+            self.pos+= 1; 
+        }
+    }
     fn expect(&mut self, want:TokKind, what: &str) -> PResult<()> {
         if self.peek().kind == want {self.advance(); Ok(()) }
         else { Err(ParseError{ msg: what.into(), span: self.peek().span.clone() }) }

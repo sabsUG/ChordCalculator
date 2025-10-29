@@ -1,3 +1,4 @@
+#![allow(warnings)]
 #[derive(Debug, Clone)]
 pub struct Song {
     pub bars: Vec<Bar>,

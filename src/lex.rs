@@ -1,4 +1,4 @@
-
+#![allow(warnings)]
 //to track the position of each token in the input
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Span {
