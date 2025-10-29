@@ -41,14 +41,17 @@ pub fn tokenize(src: &str) -> Vec<Token> {
     //Convert input string to bytes
     let bytes = src.as_bytes();
     let mut i = 0usize; //current index
+    let mut pos = 0usize;
 
     //helper to push the token into the Vector
-    let mut push = | kind: TokKind, start: usize, end: usize| {
+    let mut push = | kind: TokKind, start: usize, end: usize, pos: &mut usize| {
+        let len = end - start;
         toks.push(Token {
             kind,
             text: src[start..end].to_string(),
-            span: Span { lo: start, hi: end},
+            span: Span { lo: *pos, hi: *pos+len},
         });
+        *pos += len;
     };
 
     // helpers to identify the character
@@ -78,91 +81,91 @@ pub fn tokenize(src: &str) -> Vec<Token> {
                 i+=1;
                 while i < bytes.len() && is_digit(bytes[i]) {i += 1;}
                 let val = src[start..i].parse::<u16>().unwrap_or(0);
-                push(TokKind::Num(val), start, i);
+                push(TokKind::Num(val), start, i, &mut pos);
             }
 
             //Note letters
             b'A'..=b'G' => {
                 i+=1;
-                push(TokKind::NoteLetter(b as char), start, i);
+                push(TokKind::NoteLetter(b as char), start, i, &mut pos);
             }
 
             //single-char fixed symbols
-            b'/' => { i+=1; push(TokKind::Slash, start, i);}
-            b'%' => { i+=1; push(TokKind::Percentage, start, i);}
-            b'#' => { i+=1; push(TokKind::Sharp, start, i);}
-            b'b' => { i+=1; push(TokKind::Flat, start, i);}
-            b'-' => { i+=1; push(TokKind::Dash, start, i);}
-            b'+' => { i+=1; push(TokKind::Plus, start, i);}
-            b'o' => { i+=1; push(TokKind::LowerO, start, i);}
-            b'^' => { i+=1; push(TokKind::Caret, start, i);}
-            b'(' => { i+=1; push(TokKind::LParen, start, i);}
-            b')' => { i+=1; push(TokKind::RParen, start, i);}
+            b'/' => { i+=1; push(TokKind::Slash, start, i, &mut pos);}
+            b'%' => { i+=1; push(TokKind::Percentage, start, i, &mut pos);}
+            b'#' => { i+=1; push(TokKind::Sharp, start, i, &mut pos);}
+            b'b' => { i+=1; push(TokKind::Flat, start, i, &mut pos);}
+            b'-' => { i+=1; push(TokKind::Dash, start, i, &mut pos);}
+            b'+' => { i+=1; push(TokKind::Plus, start, i, &mut pos);}
+            b'o' => { i+=1; push(TokKind::LowerO, start, i, &mut pos);}
+            b'^' => { i+=1; push(TokKind::Caret, start, i, &mut pos);}
+            b'(' => { i+=1; push(TokKind::LParen, start, i, &mut pos);}
+            b')' => { i+=1; push(TokKind::RParen, start, i, &mut pos);}
 
             b'|' => {
                 if matches!(peek(i+1), Some(b'|')){ i+=2; }
                 else {i+=1;} 
-                push(TokKind::Bar, start, i); 
+                push(TokKind::Bar, start, i, &mut pos); 
             }
 
             //keywords NC / sus / no
             b'N' => {
                 if matches!(peek(i+1), Some(b'C')){
                     i+=2;
-                    push(TokKind::NC, start, i);
+                    push(TokKind::NC, start, i, &mut pos);
                 }
                 else{
                     i+=1;
-                    push(TokKind::Unknown('N'), start, i);
+                    push(TokKind::Unknown('N'), start, i, &mut pos);
                 }
             }
 
             b's' => {
                 if starts_with_at(i, "sus24"){
                     i+=5;
-                    push(TokKind::Sus24, start, i);
+                    push(TokKind::Sus24, start, i, &mut pos);
                 }
                 else if starts_with_at(i, "sus2"){
                     i+=4;
-                    push(TokKind::Sus2, start, i);
+                    push(TokKind::Sus2, start, i, &mut pos);
                 }
                 else if starts_with_at(i, "sus4"){
                     i+=4;
-                    push(TokKind::Sus4, start, i);
+                    push(TokKind::Sus4, start, i, &mut pos);
                 }
                 else{
                     i+=1;
-                    push(TokKind::Unknown('s'), start, i);
+                    push(TokKind::Unknown('s'), start, i, &mut pos);
                 }
             }
 
             b'n' => {
                 if starts_with_at(i, "no35"){
                     i+=4;
-                    push(TokKind::No35, start, i);
+                    push(TokKind::No35, start, i, &mut pos);
                 }
                 else if starts_with_at(i, "no3"){
                     i+=3;
-                    push(TokKind::No3, start, i);
+                    push(TokKind::No3, start, i, &mut pos);
                 }
                 else if starts_with_at(i, "no5"){
                     i+=3;
-                    push(TokKind::No5, start, i);
+                    push(TokKind::No5, start, i, &mut pos);
                 }
                 else {
                     i+=1;
-                    push(TokKind::Unknown('n'), start, i);
+                    push(TokKind::Unknown('n'), start, i, &mut pos);
                 }
             }
 
             //anything else -> unknown
             _ => {
                 i+=1;
-                push(TokKind::Unknown(b as char), start, i);
+                push(TokKind::Unknown(b as char), start, i, &mut pos);
             }
         }
     }
-    let end_of_file = src.len();
+    let end_of_file = pos;
     toks.push(Token { 
         kind: TokKind::EOF, 
         text: String::new(), span: 
