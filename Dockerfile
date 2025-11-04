@@ -10,8 +10,8 @@ COPY Cargo.toml Cargo.lock ./
 # Create an empty source folder (for caching dependency builds)
 RUN mkdir src && echo "fn main() {}" > src/main.rs
 
-# Build dependencies only (for faster rebuilds later)
-RUN cargo build --release || true
+# Build 
+RUN cargo build --release
 
 # Now copy the actual source code
 COPY . .
