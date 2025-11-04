@@ -5,6 +5,7 @@ use chordcalc::parse;
 
 use std::process::Command;
 use std::fs;
+use std::path::Path;
 
 
 #[test]
@@ -16,7 +17,9 @@ fn all_cases(){
     for entry in std::fs::read_dir("tests/cases").unwrap(){
         let path = entry.unwrap().path();
 
-        run_test(path.to_str().unwrap(), &mut total, &mut passed, &mut failed);
+        let filename = path.file_name().unwrap().to_string_lossy();
+
+        run_test(path.to_str().unwrap(), &filename, &mut total, &mut passed, &mut failed);
     }
     println!(
         "\nSummary: {} total | \x1b[32m{} passed\x1b[0m | \x1b[31m{} failed\x1b[0m\n",
@@ -25,7 +28,7 @@ fn all_cases(){
 
 }
 
-fn run_test(input_file: &str, total: &mut i32, passed: &mut i32, failed: &mut i32){
+fn run_test(input_file: &str, file_name: &str, total: &mut i32, passed: &mut i32, failed: &mut i32){
     *total +=1;
 
     let input_text = fs::read_to_string(input_file)
@@ -35,13 +38,13 @@ fn run_test(input_file: &str, total: &mut i32, passed: &mut i32, failed: &mut i3
 
     match parse::parse_song(&tokens) {
         Ok(song) => {
-            println!("\x1b[32m✅ PASS: {}\x1b[0m", input_text);
+            println!("\x1b[32m✅ PASS: {}\x1b[0m", file_name);
             println!("\n==============================================================");
             //println!("{:#?}", song);
             *passed += 1;
         }
         Err(err) => {
-            println!("\x1b[31m❌ FAIL: {}\x1b[0m", input_text);
+            println!("\x1b[31m❌ FAIL: {}\x1b[0m", file_name);
             //eprintln!("\nParse error: {} at {:?}", err.msg, err.span);
             parse::show_error_span(&input_text, &err.span);
             *failed +=1;
