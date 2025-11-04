@@ -2,8 +2,8 @@
 use crate::ast::Bar as AstBar;
 use crate::ast::*;
 use crate::lex::{Span, TokKind, Token};
-use TokKind::*;
 use std::cell::Cell;
+use TokKind::*;
 
 // Global or thread-local indentation tracker
 thread_local! {
