@@ -1,0 +1,56 @@
+name: ChordCalc Rust CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request: 
+    branches: ["**"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4 #Checkout (clone) repo's code into the runner 
+      - uses: dtolnay/rust-toolchain@stable # Install the Rust toolchain (compiler, cargo) on the Runner
+
+      - name: Check formatting #Code quality check. Verify that your code is properly formatted according to Rust's style guide (rustfmt rules)
+        run: cargo fmt -- --check
+      
+      - name: Lint (Clippy) #Detects potential bugs, bad practices or performance issues in the code
+        run: cargo clippy -- -D warnings #treat all warnings as errors
+      
+      - name: Build
+        run: cargo build --release
+
+      - name: Upload build artifacts #so test job can use them
+        uses: actions/upload-artifact@v4
+        with:
+          name: chordcalc-binary
+          path: target/release/chordcalc
+  
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Download build artifact #from previous job (build)
+        uses: actions/download-artifact@v4
+        with:
+          name: chordcalc-binary
+          path: ./target/release
+
+      - name: Run tests
+        run: cargo test --release -- --nocapture
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t chordcalc .
+  
