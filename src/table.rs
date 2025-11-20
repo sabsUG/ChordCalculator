@@ -6,8 +6,21 @@ pub fn print_pitch_table(song: &Song) {
     let mut totals = [0u32; 12];
     let mut chord_index = 1;
 
-    println!("    {}", headers.join(" "));
-    println!("    {}", "- ".repeat(12));
+    const COL_WIDTH: usize = 3; // width for each pitch-class column
+
+    // Header
+    print!("{:>4}", "");
+    for h in headers {
+        print!("{:>COL_WIDTH$}", h, COL_WIDTH = COL_WIDTH);
+    }
+    println!();
+
+    // Separator line
+    print!("{:>4}", "");
+    for _ in 0..headers.len() {
+        print!("{:>COL_WIDTH$}", "-", COL_WIDTH = COL_WIDTH);
+    }
+    println!();
 
     for bar in &song.bars {
         for item in &bar.items {
@@ -23,7 +36,14 @@ pub fn print_pitch_table(song: &Song) {
                     }
 
                     let name = chord_to_string(ch);
-                    println!("{:>3}. {}  {}", chord_index, row.join(" "), name);
+                    print!("{:>3}.", chord_index);
+
+                    // Pitch-class columns
+                    for cell in row {
+                        print!("{:>COL_WIDTH$}", cell, COL_WIDTH = COL_WIDTH);
+                    }
+                    // Chord name
+                    println!("  {}", name);
                     chord_index += 1;
                 }
                 BarItem::Repeat | BarItem::NC => continue,
@@ -31,10 +51,17 @@ pub fn print_pitch_table(song: &Song) {
         }
     }
 
-    println!("    {}", "- ".repeat(12));
-    print!("    ");
+    // Bottom separator
+    print!("{:>4}", "");
+    for _ in 0..headers.len() {
+        print!("{:>COL_WIDTH$}", "-", COL_WIDTH = COL_WIDTH);
+    }
+    println!();
+
+    // Totals row
+    print!("{:>4}", "");
     for t in totals.iter() {
-        print!("{:>2} ", t);
+        print!("{:>COL_WIDTH$}", t, COL_WIDTH = COL_WIDTH);
     }
     println!();
 }
