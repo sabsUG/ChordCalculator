@@ -1,4 +1,22 @@
 #![allow(warnings)]
+
+use std::fmt;
+
+impl fmt::Display for Letter {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", match self {
+            Letter::A => "A",
+            Letter::B => "B",
+            Letter::C => "C",
+            Letter::D => "D",
+            Letter::E => "E",
+            Letter::F => "F",
+            Letter::G => "G",
+        })
+    }
+}
+
+
 #[derive(Debug, Clone)]
 pub struct Song {
     pub bars: Vec<Bar>,

@@ -1,6 +1,8 @@
 mod ast;
 mod lex;
 mod parse;
+mod calc;
+mod table;
 
 fn main() {
     let path = std::env::args().nth(1).expect("usage: chordcalc <file>"); //expects 2 arguments, the second being the file to process
@@ -21,6 +23,10 @@ fn main() {
                 println!("\n=== AST ===");
                 println!("{:#?}", song);
             }
+            println!("\n=== Pitch Classes ===");
+            calc::analyze_song(&song);
+
+            table::print_pitch_table(&song);
         }
         Err(err) => {
             eprintln!("\nParse error: {} at {:?}", err.msg, err.span);
