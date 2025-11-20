@@ -1,5 +1,5 @@
 pub mod ast;
+pub mod calc;
 pub mod lex;
 pub mod parse;
-pub mod calc;
 pub mod table;

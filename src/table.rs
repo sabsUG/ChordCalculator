@@ -1,15 +1,15 @@
+use crate::ast::{BarItem, Chord, Song};
 use crate::calc::chord_to_pitch_classes;
-use crate::ast::{Song, BarItem, Chord};
 
 pub fn print_pitch_table(song: &Song) {
-    let headers = ["0","1","2","3","4","5","6","7","8","9","A","B"];
+    let headers = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B"];
     let mut totals = [0u32; 12];
     let mut chord_index = 1;
 
     println!("    {}", headers.join(" "));
     println!("    {}", "- ".repeat(12));
 
-   for bar in &song.bars {
+    for bar in &song.bars {
         for item in &bar.items {
             match item {
                 BarItem::Chord(ch) => {
@@ -26,7 +26,7 @@ pub fn print_pitch_table(song: &Song) {
                     println!("{:>3}. {}  {}", chord_index, row.join(" "), name);
                     chord_index += 1;
                 }
-                BarItem::Repeat | BarItem::NC => continue, 
+                BarItem::Repeat | BarItem::NC => continue,
             }
         }
     }
@@ -61,8 +61,12 @@ fn chord_to_string(ch: &Chord) -> String {
             }
         }
         if let Some(qn) = &desc.qnum {
-            if qn.hat { s.push('^'); }
-            if let Some(n) = qn.n { s.push_str(&n.to_string()); }
+            if qn.hat {
+                s.push('^');
+            }
+            if let Some(n) = qn.n {
+                s.push_str(&n.to_string());
+            }
             if let Some(ext) = &qn.ext {
                 use crate::ast::Ext::*;
                 match ext {

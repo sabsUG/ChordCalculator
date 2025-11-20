@@ -1,7 +1,7 @@
 mod ast;
+mod calc;
 mod lex;
 mod parse;
-mod calc;
 mod table;
 
 fn main() {
