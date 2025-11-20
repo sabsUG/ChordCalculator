@@ -14,7 +14,7 @@ pub fn print_pitch_table(song: &Song) {
             match item {
                 BarItem::Chord(ch) => {
                     let pcs = chord_to_pitch_classes(ch);
-                    let mut row = vec![" "; 12];
+                    let mut row = [" "; 12];
 
                     for p in pcs {
                         let idx = (p % 12) as usize;
@@ -70,7 +70,7 @@ fn chord_to_string(ch: &Chord) -> String {
             if let Some(ext) = &qn.ext {
                 use crate::ast::Ext::*;
                 match ext {
-                    Nine => s.push_str("9"),
+                    Nine => s.push('9'),
                     Eleven => s.push_str("11"),
                     Thirteen => s.push_str("13"),
                 }
