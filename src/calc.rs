@@ -2,11 +2,15 @@ use crate::ast::*;
 
 pub fn analyze_song(song: &Song) {
     for (i, bar) in song.bars.iter().enumerate() {
-        println!("Bar {}:", i + 1);
+        if cfg!(debug_assertions) {
+            println!("Bar {}:", i + 1);
+        }
         for item in &bar.items {
             if let BarItem::Chord(ch) = item {
                 let pitch_classes = chord_to_pitch_classes(ch);
-                println!("  {:?} -> {:?}", ch, pitch_classes);
+                if cfg!(debug_assertions) {
+                    println!("  {:?} -> {:?}", ch, pitch_classes);
+                }
             }
         }
     }

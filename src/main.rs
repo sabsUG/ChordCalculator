@@ -22,8 +22,9 @@ fn main() {
             if cfg!(debug_assertions) {
                 println!("\n=== AST ===");
                 println!("{:#?}", song);
+
+                println!("\n=== Pitch Classes ===");
             }
-            println!("\n=== Pitch Classes ===");
             calc::analyze_song(&song);
 
             table::print_pitch_table(&song);
