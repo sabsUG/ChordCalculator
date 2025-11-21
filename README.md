@@ -78,16 +78,3 @@ To run the test suite:
 cargo test --release -- --nocapture
 ```
 
-## Project Structure
-
-src/
-  lex.rs        # tokenizer
-  parse.rs      # recursive descent parser
-  ast.rs        # abstract syntax tree structures
-  calc.rs       # pitch-class calculations
-  table.rs      # histogram and table printing
-
-tests/
-  integration_tests.rs
-  cases/
-
