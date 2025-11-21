@@ -64,7 +64,7 @@ fn run_test(
 
 #[test]
 fn test_pitch_classes_for_selected_chords() {
-    let input_text = "Gsus2 | Bsus2 | E-(9) | G^7 | B-(9) | A13 | G9#11";
+    let input_text = "Gsus2 | Bsus2 | E-(9) | G^7 | B-(9) | A13 | G9#11 | Dno3";
     let tokens = lex::tokenize(&input_text);
 
     let song = parse::parse_song(&tokens).unwrap();
@@ -99,6 +99,9 @@ fn test_pitch_classes_for_selected_chords() {
 
     // G9#11 = [0,2,7,11]
     assert_eq!(chord_to_pitch_classes(&chords[6]), pc(&[0, 2, 7, 11]));
+
+    // Dno3 = [2, 9]
+    assert_eq!(chord_to_pitch_classes(&chords[7]), pc(&[2, 9]));
 
     println!("\x1b[32m✅ PASS: pitch-classes {}\x1b[0m", input_text);
     println!("\n==============================================================");
