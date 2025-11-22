@@ -69,6 +69,7 @@ pub fn print_pitch_table(song: &Song) {
 fn chord_to_string(ch: &Chord) -> String {
     let mut s = ch.root.letter.to_string();
 
+    // Root accidental
     if let Some(acc) = &ch.root.acc {
         match acc {
             crate::ast::Accidental::Sharp => s.push('#'),
@@ -77,6 +78,7 @@ fn chord_to_string(ch: &Chord) -> String {
     }
 
     if let Some(desc) = &ch.description {
+        // Quality
         if let Some(q) = &desc.qual {
             use crate::ast::Qual::*;
             match q {
@@ -87,6 +89,8 @@ fn chord_to_string(ch: &Chord) -> String {
                 One => s.push('1'),
             }
         }
+
+        // Chord number / extension (qnum)
         if let Some(qn) = &desc.qnum {
             if qn.hat {
                 s.push('^');
@@ -103,8 +107,61 @@ fn chord_to_string(ch: &Chord) -> String {
                 }
             }
         }
+
+        // Suspensions (sus2, sus4, sus24)
+        if let Some(sus) = &desc.sus {
+            use crate::ast::Sus::*;
+            match sus {
+                Sus2 => s.push_str("sus2"),
+                Sus4 => s.push_str("sus4"),
+                Sus24 => s.push_str("sus24"),
+            }
+        }
+
+        // Parenthesized additions like (9), (#11), etc.
+        if let Some(add) = &desc.add {
+            use crate::ast::{Accidental, Add, Ext};
+            match add {
+                Add::AccExt(acc, ext) => {
+                    s.push('(');
+                    match acc {
+                        Some(Accidental::Sharp) => s.push('#'),
+                        Some(Accidental::Flat) => s.push('b'),
+                        None => {}
+                    }
+                    match ext {
+                        Ext::Nine => s.push('9'),
+                        Ext::Eleven => s.push_str("11"),
+                        Ext::Thirteen => s.push_str("13"),
+                    }
+                    s.push(')');
+                }
+                Add::Acc5(acc) => {
+                    s.push('(');
+                    if let Some(a) = acc {
+                        match a {
+                            Accidental::Sharp => s.push('#'),
+                            Accidental::Flat => s.push('b'),
+                        }
+                    }
+                    s.push('5');
+                    s.push(')');
+                }
+            }
+        }
+
+        // Omit rules (no3, no5, no35)
+        if let Some(omit) = &desc.omit {
+            use crate::ast::Omit::*;
+            match omit {
+                No3 => s.push_str("no3"),
+                No5 => s.push_str("no5"),
+                No35 => s.push_str("no35"),
+            }
+        }
     }
 
+    // Slash chord bass
     if let Some(bass) = &ch.bass {
         s.push('/');
         s.push_str(&bass.letter.to_string());
